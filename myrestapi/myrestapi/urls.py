@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
 from restapp import views
-import rest_framework
 
 urlpatterns = [
     path('', views.QuickLinks.as_view(), name='QuickLinks'),

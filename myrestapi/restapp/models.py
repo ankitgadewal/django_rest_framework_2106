@@ -1,9 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User
-
-attendance_status = (('Present', 'Present'), ('Absent', 'Absent'))
+from django.contrib.auth.models import Group, User
 
 class Class(models.Model):
     class_id = models.AutoField(primary_key=True)
@@ -30,8 +27,9 @@ class AllSubject(models.Model):
     def __str__(self):
         return self.name_of_subject
 
+attendance_status = (('Present', 'Present'), ('Absent', 'Absent'))
 class Attendance(models.Model):
-    date_of_attendance = models.DateTimeField(default=timezone.now)
+    date_of_attendance = models.DateField(auto_now_add=True)
     student_name = models.ForeignKey(Students, on_delete=models.CASCADE)
     attendance_status = models.CharField(max_length=7, choices=attendance_status)
     class_field = models.ForeignKey(Class, on_delete=models.CASCADE)

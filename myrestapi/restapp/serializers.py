@@ -11,35 +11,11 @@ class StudentsSerializer(serializers.ModelSerializer):
         model = Students
         fields = ['url', 'student_name', 'father_name', 'mobile_number', 'class_field', 'roll_number', 'admission_year', 'dob']
 
-class AllSubjectSerializer(serializers.ModelSerializer):
+class TeachersSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='single-teacher',lookup_field='teacher_name', format='html')
     class Meta:
-        model = AllSubject
-        fields = '__all__'
-
-class AttendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = ['date_of_attendance', 'student_name', 'attendance_status', 'class_field']
-
-class BookDistributionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BookDistribution
-        fields = ['book_name', 'assigned_to']
-
-class ClassSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Class
-        fields = '__all__'
-
-class ClassSubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClassSubjects
-        fields = '__all__'
-
-class LibrarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Library
-        fields = ['book_name', 'book_author', 'class_field', 'no_of_copies']
+        model = Teachers
+        fields = ['url', 'teacher_name', 'mobile_number', 'class_teacher']
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -57,17 +33,41 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data.get('password'))
         return super(RegistrationSerializer, self).create(validated_data)
-        
 
-class TeachersSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='single-teacher',lookup_field='teacher_name', format='html')
+
+class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Teachers
-        fields = ['url', 'teacher_name', 'mobile_number', 'class_teacher']
+        model = Attendance
+        fields = ['date_of_attendance', 'student_name', 'attendance_status', 'class_field']
+
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = '__all__'
+
+class AllSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AllSubject
+        fields = '__all__'
+
+class ClassSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClassSubjects
+        fields = ['class_name', 'subjects']
 
 class TeacherSubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherSubject
+        fields = '__all__'
+
+class LibrarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Library
+        fields = ['book_name', 'book_author', 'class_field', 'no_of_copies']
+
+class BookDistributionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookDistribution
         fields = '__all__'
 
 class ProfileSerializer(serializers.ModelSerializer):
