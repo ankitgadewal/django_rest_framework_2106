@@ -2,8 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password
 from .models import (AllSubject, Attendance, BookDistribution, Class, ClassSubjects, Library, 
-    Students, Teachers, TeacherSubject, Profile)
-
+    Students, Teachers, TeacherSubject, Profile, MyUploads)
 
 class StudentsSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='single-student', format='html', lookup_field='student_name')
@@ -70,7 +69,15 @@ class BookDistributionSerializer(serializers.ModelSerializer):
         model = BookDistribution
         fields = '__all__'
 
+class MyUploadsSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    class Meta:
+        model = MyUploads
+        fields = '__all__'
+
 class ProfileSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    url = serializers.HyperlinkedIdentityField(view_name='SingleProfile', format='html', lookup_field='pk')
     class Meta:
         model = Profile
-        fields = '__all__'
+        fields = ['owner', 'url', 'profile_pic', 'hobby', 'address', 'username']

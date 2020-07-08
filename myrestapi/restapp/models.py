@@ -63,10 +63,18 @@ class ClassSubjects(models.Model):
 
 class Profile(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_pic = models.ImageField(upload_to='media/profile_pics', default='default.jpg')
+    owner = models.ForeignKey('auth.User', related_name='SingleProfile', on_delete=models.CASCADE)
+    hobby = models.CharField(max_length=25)
+    address = models.CharField(max_length=50)
 
     def __str__(self):
         return str(self.username)
-        
+
+class MyUploads(models.Model):
+    owner = models.ForeignKey('auth.User', related_name='MyUploads', on_delete=models.CASCADE)
+    files = models.FileField(upload_to='files')
+
 class Teachers(models.Model):
     teacher_name = models.CharField(max_length=50)
     mobile_number = models.CharField(max_length=50)
@@ -81,3 +89,4 @@ class TeacherSubject(models.Model):
 
     def __str__(self):
         return str(self.teacher_name)
+

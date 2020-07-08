@@ -1,24 +1,21 @@
-from .models import AllSubject, Attendance, BookDistribution, Class, ClassSubjects, Library, Students, Teachers, TeacherSubject, Profile
+from .models import AllSubject, Attendance, BookDistribution, Class, ClassSubjects, Library, Students, Teachers, TeacherSubject, Profile, MyUploads
 
-from .serializers import AllSubjectSerializer, AttendanceSerializer, BookDistributionSerializer, ClassSerializer, ClassSubjectSerializer, LibrarySerializer, RegistrationSerializer, TeachersSerializer, TeacherSubjectSerializer, ProfileSerializer, StudentsSerializer
-
+from .serializers import AllSubjectSerializer, AttendanceSerializer, BookDistributionSerializer, ClassSerializer, ClassSubjectSerializer, LibrarySerializer, RegistrationSerializer, TeachersSerializer, TeacherSubjectSerializer, ProfileSerializer, StudentsSerializer, MyUploadsSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import generics
-from rest_framework.response import Response
+from rest_framework.response import Response 
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly
-from .permissions import IsTeacher, ReadOnly, IsLibrarian, IsStudent
+from .permissions import IsTeacher, ReadOnly, IsLibrarian, IsStudent, IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 
 class QuickLinks(APIView):
-    """
-    Only Quicklinks and Allsubjects Apis made with APIView and Others made with generic views
-    And User Profiles create automatically(use of signals) when user register
-    """
     def get(self, request, format=None):
         return Response({
         'students': reverse('students', request=request, format=format),
@@ -33,6 +30,7 @@ class QuickLinks(APIView):
         'allregistrations':  reverse('allregistrations', request=request, format=format),
         'teachersubjects': reverse('teachersubjects', request=request, format=format),
         'profile': reverse('profile', request=request, format=format),
+        'uploads': reverse('uploads', request=request, format=format)
         })
 
 class StudentsView(generics.ListCreateAPIView):
@@ -54,6 +52,7 @@ class AllSubjectView(APIView):
     permission_classes = [IsTeacher|IsAdminUser|ReadOnly]
     def get(self, request, format=None):
         allsubjects = AllSubject.objects.all()
+        
         serializer = AllSubjectSerializer(allsubjects, many=True)
         return Response(serializer.data)
 
@@ -136,6 +135,25 @@ class TeacherSubjectView(generics.ListCreateAPIView):
     filter_fields = ['teacher_name']
 
 class ProfileView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAdminUser]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+class IndividualProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'pk'
+
+class MyUploadsView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = MyUploads.objects.all()
+    serializer_class = MyUploadsSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['owner']
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
